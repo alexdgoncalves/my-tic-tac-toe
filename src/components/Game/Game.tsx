@@ -15,21 +15,24 @@ export default function Game() {
   const [winners, setWinners] = useState<number[] | null>(null);
   const [snack, setSnack] = useState(false);
   const squaresFilled = currentSquares.filter(Boolean).length;
+  const [moveWinner, setMoveWinner] = useState<number | null>(null); // Adicione o estado moveWinner
 
   function handlePlay(nextSquare: string[]) {
     if (!endGame) {
       const nextHistory = [...history.slice(0, currentMove + 1), nextSquare];
+      const newMove = currentMove + 1;
       setHistory(nextHistory);
-      setCurrentMove(currentMove + 1);
-      const [hasWinner, lineWinner] = calculateWinner(nextSquare) || [null, []]; // Provide default values for lineWinner
+      setCurrentMove(newMove);
+      const [hasWinner, lineWinner] = calculateWinner(nextSquare) || [null, []];
       if (hasWinner) {
-        setEndGame(endGame => endGame ? endGame : !endGame);
+        setEndGame(true);
         setWinners([...lineWinner]);
         setSnack(true);
+        setMoveWinner(newMove); // Atualize o estado com o movimento do vencedor
         return;
       }
     }
-  };
+  }
 
   function jumpTo(nextMove: number) {
     setWinners(null);
@@ -61,13 +64,9 @@ export default function Game() {
               ? (
                 <ListItemText primary="Click to back to the past" />
               )
-              :
-              squaresFilled > 0 && (
+              : (squaresFilled > 0 && move !== moveWinner) && (
                 <ListItemButton style={{ padding: "2px 0px", margin: "0" }}>
-                  <Button
-                    variant="outlined"
-                    onClick={() => jumpTo(move)}
-                  >
+                  <Button variant="outlined" onClick={() => jumpTo(move)}>
                     Go to move #{move}
                   </Button>
                 </ListItemButton>
