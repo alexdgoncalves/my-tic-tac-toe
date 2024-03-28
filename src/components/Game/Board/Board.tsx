@@ -1,4 +1,4 @@
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid'; // Grid version 1
 import Square from './Square/Square';
 import { Box } from "@mui/material";
 
@@ -6,9 +6,10 @@ interface BoardProps {
   onPlay: (squares: string[]) => void;
   squares: string[];
   nextValue: boolean;
+  winners: number[] | null;
 }
 
-export default function Board({ onPlay, squares, nextValue }: BoardProps) {
+export default function Board({ onPlay, squares, nextValue, winners }: BoardProps) {
   const rowLength = 3;
 
   const Rows = Array(rowLength).fill(null).map((_, rowIndex) => {
@@ -18,38 +19,20 @@ export default function Board({ onPlay, squares, nextValue }: BoardProps) {
         Depois é somado a coluna atual com o indice da linha => columnIndex
       */
       const indexSquare = (rowIndex * rowLength) + columnIndex;
-      return <Square key={indexSquare} value={squares[indexSquare]} onPlay={() => handleClick(indexSquare)} />
+      const isWinner = winners && winners.includes(indexSquare) || false;
+      return <Square key={indexSquare} isWinner={isWinner} value={squares[indexSquare]} onPlay={() => handleClick(indexSquare)} />
     });
     return (
-      <Grid key={rowIndex} xs={6} md={6} display="flex" justifyContent={"center"} gap={1} >
+      <Grid key={rowIndex} item xs={6} md={6} display="flex" justifyContent={"center"} gap={1} >
         {Column}
       </Grid>
     )
   });
 
-  function calculateWinner(squares: string[]) {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        console.log('Winner')
-        return squares[a];
-      }
-    }
-    return null;
-  }
+
 
   function handleClick(index: number) {
-    if (calculateWinner(squares) || squares[index]) {
+    if (squares[index]) {
       return;
     }
 
